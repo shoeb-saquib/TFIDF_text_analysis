@@ -7,7 +7,7 @@ import numpy as np
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-num_grams = 1
+num_grams = 2
 should_generate_section_files = False
 generate_word_cloud = False
 generate_bar_chart = False
@@ -86,6 +86,9 @@ def plot_word_cloud(tdidf_table, column):
         spine.set_edgecolor("black")
         spine.set_linewidth(4)
     fig.suptitle(column[:-3], fontsize=40, weight="bold", y=0.93)
+    filename = column[:-3].lower().split()
+    filename = filename[0] + "_" + filename[1] + "_word_cloud.png"
+    plt.savefig("generated_visuals/" + filename)
 
 def plot_bar_chart(tfidf_table, column):
     tfidf_table["Word"] = tfidf_table["Word"].apply(lambda x: " ".join(x) if isinstance(x, tuple) else x)
@@ -104,6 +107,11 @@ def plot_bar_chart(tfidf_table, column):
     plt.title(column[:-3], fontsize=25, fontweight="bold")
     plt.grid(axis="x", linestyle="--", alpha=0.6)
     plt.tight_layout()
+    filename = column[:-3].lower().split()
+    if num_grams == 1: filename = filename[0] + "_" + filename[1] + "_unigram_bar_chart.png"
+    elif num_grams == 2: filename = filename[0] + "_" + filename[1] + "_bigram_bar_chart.png"
+    else: filename = filename[0] + "_" + filename[1] + "_ngram_bar_chart.png"
+    plt.savefig("generated_visuals/" + filename)
 
 def print_idf_table(data):
     idf_table = data.copy()
@@ -119,9 +127,9 @@ def print_tf_table(data, column):
 
 
 if (__name__ == "__main__"):
-    epidemic_filenames = ["the_black_death.txt",
-                          "the_dancing_mania.txt",
-                          "the_sweating_sickness.txt"]
+    epidemic_filenames = ["generated_sections/black_death.txt",
+                          "generated_sections/dancing_mania.txt",
+                          "generated_sections/sweating_sickness.txt"]
     if should_generate_section_files: split_epidemics("the_epidemics_of_the_middle_ages.txt", epidemic_filenames)
     column_names = ["Black Death TF", "Dancing Mania TF", "Sweating Sickness TF"]
     data = calculate_tfidf(epidemic_filenames, column_names, num_grams)
@@ -134,4 +142,3 @@ if (__name__ == "__main__"):
             plot_word_cloud(tfidf, column)
         if generate_bar_chart:
             plot_bar_chart(tfidf.head(10).copy(), column)
-    plt.show()
